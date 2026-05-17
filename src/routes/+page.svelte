@@ -10,7 +10,7 @@
 </script>
 <Grid>
     <Row>
-        <Column sm={4} md={6} lg={8}>
+        <Column lg={6}>
             <Tile>
                 <h1>Personality Test</h1>
 
