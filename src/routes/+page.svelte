@@ -45,7 +45,13 @@
                     a question.
                 </p>
             </Tile>
-            <Button href="/test" kind="primary">
+            <Button
+                    href="/test"
+                    kind="primary"
+                    style="
+                        width: 100%;
+                        max-width: 100%;
+                        margin-top: 1.5rem;">
                 Start test
             </Button>
         </Column>
@@ -65,9 +71,4 @@
         margin-top: 1rem;
     }
 
-    :global(.bx--btn) {
-        width: 100%;
-        max-width: 100%;
-        margin-top: 1.5rem;
-    }
 </style>

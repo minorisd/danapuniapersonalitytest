@@ -8,14 +8,33 @@
         ProgressBar,
         RadioTile,
         Row,
+        SessionStorage,
         Stack,
         TileGroup,
     } from "carbon-components-svelte";
 
-    import questions from "$lib/data/questions.json";
+    import questionsJson from "$lib/data/questions.json";
+
+    type Question = {
+        id: number;
+        question_id: string;
+        question_en: string;
+        domain: string;
+    };
+
+    type Answer = {
+        id: number;
+        answer: string;
+    };
+
+    function shuffleQuestions(questions: Question[]) {
+        return [...questions].sort(() => Math.random() - 0.5);
+    }
 
     let currentIndex = $state(0);
-    let answers = $state<{ id: number; answer: string }[]>([]);
+    let questions = $state<Question[]>(shuffleQuestions(questionsJson));
+    let answers = $state<Answer[]>([]);
+    let expanded = $state(false);
 
     let currentQuestion = $derived(questions[currentIndex]);
 
@@ -32,19 +51,28 @@
         );
 
         if (existingAnswer) {
-            existingAnswer.answer = value;
+            answers = answers.map((item) =>
+                item.id === currentQuestion.id
+                    ? { id: item.id, answer: value }
+                    : item
+            );
+
             return;
         }
 
-        answers.push({
-            id: currentQuestion.id,
-            answer: value,
-        });
+        answers = [
+            ...answers,
+            {
+                id: currentQuestion.id,
+                answer: value,
+            },
+        ];
     }
 
     function previousQuestion() {
         if (currentIndex > 0) {
-            currentIndex--;
+            currentIndex = currentIndex - 1;
+            expanded = false;
         }
     }
 
@@ -53,9 +81,13 @@
             return;
         }
 
-        if (currentIndex < questions.length - 1) {
-            currentIndex++;
+        if (isLastQuestion) {
+            seeResults();
+            return;
         }
+
+        currentIndex = currentIndex + 1;
+        expanded = false;
     }
 
     function seeResults() {
@@ -63,30 +95,37 @@
     }
 </script>
 
+<SessionStorage key="test-current-index" bind:value={currentIndex} />
+<SessionStorage key="test-questions" bind:value={questions} />
+<SessionStorage key="test-answers" bind:value={answers} />
+
 <Grid>
-    <Stack gap={7}>
+    <Stack gap={5}>
         <Row>
             <Column>
-                <ProgressBar
-                        value={currentIndex + 1}
-                        max={questions.length}
-                />
+                <h1>Question {currentIndex + 1} of {questions.length}</h1>
             </Column>
         </Row>
 
         <Row>
             <Column>
-                <h1>Question {currentIndex + 1} of {questions.length}</h1>
-
+                <ProgressBar value={currentIndex + 1} max={questions.length} />
                 <br />
+            </Column>
+        </Row>
 
-                <ExpandableTile tileCollapsedLabel="Bahasa Indonesia">
+        <Row>
+            <Column>
+                <ExpandableTile
+                        bind:expanded
+                        tileCollapsedLabel="Bahasa Indonesia"
+                >
                     <div slot="above" style="height: 10rem">
-                        {currentQuestion.question_en}
+                        <h2>{currentQuestion.question_en}</h2>
                     </div>
 
                     <div slot="below">
-                        {currentQuestion.question_id}
+                        <p>{currentQuestion.question_id}</p>
                     </div>
                 </ExpandableTile>
 
@@ -100,25 +139,11 @@
                         selected={answer}
                         on:select={(event) => saveAnswer(event.detail)}
                 >
-                    <RadioTile value="strongly-agree">
-                        Strongly agree
-                    </RadioTile>
-
-                    <RadioTile value="agree">
-                        Agree
-                    </RadioTile>
-
-                    <RadioTile value="neutral">
-                        Neutral
-                    </RadioTile>
-
-                    <RadioTile value="disagree">
-                        Disagree
-                    </RadioTile>
-
-                    <RadioTile value="strongly-disagree">
-                        Strongly disagree
-                    </RadioTile>
+                    <RadioTile value="strongly-agree">Strongly agree</RadioTile>
+                    <RadioTile value="agree">Agree</RadioTile>
+                    <RadioTile value="neutral">Neutral</RadioTile>
+                    <RadioTile value="disagree">Disagree</RadioTile>
+                    <RadioTile value="strongly-disagree">Strongly disagree</RadioTile>
                 </TileGroup>
 
                 {#if isFirstQuestion}
@@ -128,28 +153,28 @@
                             disabled={!answer}
                             on:click={nextQuestion}
                     >
-                        Next question
+                        Next
                     </Button>
                 {:else}
-                    <ButtonSet style="width: 100%; margin-top: 1rem;">
+                    <ButtonSet style="width: 100%;">
                         <Button
                                 kind="secondary"
-                                style="width: 50%; max-width: 100%;"
+                                style="width: 50%; max-width: 100%; margin-top: 1rem;"
                                 on:click={previousQuestion}
                         >
-                            Previous question
+                            Previous
                         </Button>
 
                         <Button
                                 kind="primary"
-                                style="width: 50%; max-width: 100%;"
+                                style="width: 50%; max-width: 100%; margin-top: 1rem;"
                                 disabled={!answer}
                                 on:click={nextQuestion}
                         >
                             {#if isLastQuestion}
                                 See results
                             {:else}
-                                Next question
+                                Next
                             {/if}
                         </Button>
                     </ButtonSet>
