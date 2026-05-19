@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { base } from "$app/paths";
+
     import {
         Button,
         Column,
@@ -61,9 +63,7 @@
                 continue;
             }
 
-            const points = answerScores[answer.answer] ?? 0;
-
-            scores[question.domain] += points;
+            scores[question.domain] += answerScores[answer.answer] ?? 0;
         }
 
         return scores;
@@ -102,7 +102,8 @@
                         {/if}
                     </Stack>
                 </Tile>
-                <br>
+
+                <br />
             </Stack>
         </Column>
 
@@ -123,7 +124,7 @@
                 </Tile>
 
                 <Button
-                        href="/"
+                        href={`${base}/`}
                         kind="primary"
                         style="width: 100%; max-width: 100%;"
                 >

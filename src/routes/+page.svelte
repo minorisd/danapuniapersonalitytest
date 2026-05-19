@@ -1,4 +1,6 @@
 <script>
+    import { base } from "$app/paths";
+
     import {
         Button,
         ButtonSet,
@@ -24,7 +26,7 @@
         sessionStorage.removeItem("test-questions");
         sessionStorage.removeItem("test-answers");
 
-        window.location.href = "/test";
+        window.location.href = `${base}/test`;
     }
 </script>
 
@@ -82,14 +84,14 @@
                         <Button
                                 kind="secondary"
                                 style="width: 50%; max-width: 100%;"
-                                href="/test"
+                                href={`${base}/test`}
                         >
                             Previous test
                         </Button>
                     </ButtonSet>
                 {:else}
                     <Button
-                            href="/test"
+                            href={`${base}/test`}
                             kind="primary"
                             style="width: 100%; max-width: 100%;"
                     >
