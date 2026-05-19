@@ -5,60 +5,47 @@
 	import {
 		Content,
 		Header,
-		HeaderAction,
-		HeaderPanelDivider,
-		HeaderPanelLink,
-		HeaderPanelLinks,
+		HeaderGlobalAction,
 		HeaderUtilities,
+		LocalStorage,
 		Modal,
+		RadioTile,
 		SkipToContent,
 		Theme,
+		TileGroup,
 	} from "carbon-components-svelte";
 
-	import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
+	import Sun from "carbon-icons-svelte/lib/Sun.svelte";
+	import Moon from "carbon-icons-svelte/lib/Moon.svelte";
+	import Language from "carbon-icons-svelte/lib/Language.svelte";
 
 	let { children } = $props();
 
-	let isOpen = $state(false);
 	let languageModalOpen = $state(false);
-	let themeModalOpen = $state(false);
+
+	let isDarkMode = $state(false);
+
+	let language = $state("english");
+	let selectedLanguage = $state(language);
+
+	const currentTheme = $derived(isDarkMode ? "g90" : "white");
+	const themeIcon = $derived(isDarkMode ? Sun : Moon);
+	const themeText = $derived(isDarkMode ? "Light mode" : "Dark mode");
+
+	function openLanguageModal() {
+		selectedLanguage = language;
+		languageModalOpen = true;
+	}
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<Theme
-		theme="g90"
-		tokens={{
-    // // Interactive elements
-    // "interactive-01": "#d02670", // Primary button background
-    // "hover-primary": "#ee5396", // Primary button hover
-    // "active-primary": "#9f1853", // Primary button active
-    // "interactive-02": "#6f6f6f", // Secondary button background
-    // "hover-secondary": "#5e5e5e", // Secondary button hover
-	//
-    // // Links
-    // "link-01": "#ff6eb3", // Link text color
-	//
-    // // Tags
-    // "tag-background-blue": "#4a1942", // Tag background
-    // "tag-color-blue": "#ffb3d9", // Tag text color
-	//
-    // // Form elements
-    // "field-01": "#2d2d2d", // Input field background
-    // "ui-01": "#2d2d2d", // Tile background
-    // focus: "#ff6eb3", // Focus indicator color
-	//
-    // // Text colors
-    // "text-01": "#ffffff", // Primary text
-    // "text-02": "#c6c6c6", // Secondary text
-	//
-    // // Notification colors
-    // "support-04": "#a855f7", // Info notification color
+<LocalStorage key="dark-mode" bind:value={isDarkMode} />
+<LocalStorage key="language" bind:value={language} />
 
-  }}
-/>
+<Theme theme={currentTheme} />
 
 <Header
 		companyName="Yayasan Dana Punia"
@@ -69,49 +56,55 @@
 	</svelte:fragment>
 
 	<HeaderUtilities>
-		<HeaderAction
-				bind:isOpen
-				icon={SettingsAdjust}
-				iconDescription="Settings"
-				text="Settings"
-				tooltipAlignment="start"
-		>
-			<HeaderPanelLinks>
-				<HeaderPanelDivider>Settings</HeaderPanelDivider>
+		<HeaderGlobalAction
+				icon={themeIcon}
+				iconDescription={themeText}
+				tooltipAlignment="end"
+				on:click={() => {
+                isDarkMode = !isDarkMode;
+            }}
+		/>
 
-				<HeaderPanelLink
-						on:click={() => {
-                        languageModalOpen = true;
-                        isOpen = false;
-                    }}
-				>
-					Language
-				</HeaderPanelLink>
-
-				<HeaderPanelLink
-						on:click={() => {
-                        themeModalOpen = true;
-                        isOpen = false;
-                    }}
-				>
-					Theme
-				</HeaderPanelLink>
-			</HeaderPanelLinks>
-		</HeaderAction>
+<!--		<HeaderGlobalAction-->
+<!--				icon={Language}-->
+<!--				iconDescription="Language"-->
+<!--				tooltipAlignment="end"-->
+<!--				on:click={openLanguageModal}-->
+<!--		/>-->
 	</HeaderUtilities>
 </Header>
 
 <Modal
-		passiveModal
+		size="xs"
 		bind:open={languageModalOpen}
 		modalHeading="Language"
-/>
+		primaryButtonText="Save"
+		secondaryButtonText="Cancel"
+		on:click:button--secondary={() => {
+        selectedLanguage = language;
+        languageModalOpen = false;
+    }}
+		on:submit={() => {
+        language = selectedLanguage;
+        languageModalOpen = false;
+    }}
+>
+	<TileGroup
+			name="language"
+			selected={selectedLanguage}
+			on:select={(event) => {
+       		selectedLanguage = event.detail;
+    		}}
+	>
+		<RadioTile value="english" tabindex="-1">
+			English
+		</RadioTile>
 
-<Modal
-		passiveModal
-		bind:open={themeModalOpen}
-		modalHeading="Theme"
-/>
+		<RadioTile value="indonesian" tabindex="-1">
+			Bahasa Indonesia
+		</RadioTile>
+	</TileGroup>
+</Modal>
 
 <Content>
 	{@render children()}

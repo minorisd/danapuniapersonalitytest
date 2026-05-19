@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+
     import {
         Button,
         ButtonSet,
@@ -91,7 +93,7 @@
     }
 
     function seeResults() {
-        console.log(answers);
+        goto("/result");
     }
 </script>
 
@@ -103,13 +105,19 @@
     <Stack gap={5}>
         <Row>
             <Column>
-                <h1>Question {currentIndex + 1} of {questions.length}</h1>
+                <h1>
+                    Question {currentIndex + 1} of {questions.length}
+                </h1>
             </Column>
         </Row>
 
         <Row>
             <Column>
-                <ProgressBar value={currentIndex + 1} max={questions.length} />
+                <ProgressBar
+                        value={currentIndex + 1}
+                        max={questions.length}
+                />
+
                 <br />
             </Column>
         </Row>
@@ -120,7 +128,7 @@
                         bind:expanded
                         tileCollapsedLabel="Bahasa Indonesia"
                 >
-                    <div slot="above" style="height: 10rem">
+                    <div slot="above" style="height: 15rem">
                         <h2>{currentQuestion.question_en}</h2>
                     </div>
 
@@ -139,11 +147,25 @@
                         selected={answer}
                         on:select={(event) => saveAnswer(event.detail)}
                 >
-                    <RadioTile value="strongly-agree">Strongly agree</RadioTile>
-                    <RadioTile value="agree">Agree</RadioTile>
-                    <RadioTile value="neutral">Neutral</RadioTile>
-                    <RadioTile value="disagree">Disagree</RadioTile>
-                    <RadioTile value="strongly-disagree">Strongly disagree</RadioTile>
+                    <RadioTile value="strongly-agree">
+                        Strongly agree
+                    </RadioTile>
+
+                    <RadioTile value="agree">
+                        Agree
+                    </RadioTile>
+
+                    <RadioTile value="neutral">
+                        Neutral
+                    </RadioTile>
+
+                    <RadioTile value="disagree">
+                        Disagree
+                    </RadioTile>
+
+                    <RadioTile value="strongly-disagree">
+                        Strongly disagree
+                    </RadioTile>
                 </TileGroup>
 
                 {#if isFirstQuestion}
@@ -155,6 +177,7 @@
                     >
                         Next
                     </Button>
+
                 {:else}
                     <ButtonSet style="width: 100%;">
                         <Button
@@ -172,7 +195,7 @@
                                 on:click={nextQuestion}
                         >
                             {#if isLastQuestion}
-                                See results
+                                Results
                             {:else}
                                 Next
                             {/if}
